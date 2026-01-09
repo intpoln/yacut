@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: YaCut API
+  description: API для сервиса сокращения ссылок YaCut
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+
+tags:
+  - name: URLs
+    description: Операции с короткими ссылками
+
+paths:
+  /api/id/:
+    post:
+      tags:
+        - URLs
+      summary: Создание короткой ссылки
+      description: Создает новую короткую ссылку для указанного URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLinkRequest'
+            examples:
+              with_custom_id:
+                summary: С кастомным идентификатором
+                value:
+                  url: "https://www.python.org"
+                  custom_id: "py"
+              auto_generated:
+                summary: Автоматическая генерация
+                value:
+                  url: "https://www.python.org"
+      responses:
+        '201':
+          description: Короткая ссылка успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkResponse'
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                empty_body:
+                  summary: Пустой запрос
+                  value:
+                    message: "Отсутствует тело запроса"
+                missing_url:
+                  summary: Отсутствует URL
+                  value:
+                    message: "\"url\" является обязательным полем!"
+                invalid_custom_id:
+                  summary: Недопустимый идентификатор
+                  value:
+                    message: "Указано недопустимое имя для короткой ссылки"
+                duplicate_custom_id:
+                  summary: Идентификатор занят
+                  value:
+                    message: "Предложенный вариант короткой ссылки уже существует."
+
+  /api/id/{short_id}/:
+    get:
+      tags:
+        - URLs
+      summary: Получение оригинального URL
+      description: Возвращает оригинальный URL по короткому идентификатору
+      parameters:
+        - name: short_id
+          in: path
+          required: true
+          description: Короткий идентификатор ссылки
+          schema:
+            type: string
+            example: "py"
+      responses:
+        '200':
+          description: URL найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UrlResponse'
+        '404':
+          description: Ссылка не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                message: "Указанный id не найден"
+
+components:
+  schemas:
+    CreateLinkRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Оригинальный URL для сокращения
+          example: "https://www.python.org"
+        custom_id:
+          type: string
+          pattern: "^[a-zA-Z0-9]+$"
+          maxLength: 16
+          description: Кастомный идентификатор (опционально)
+          example: "py"
+
+    LinkResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Оригинальный URL
+          example: "https://www.python.org"
+        short_link:
+          type: string
+          format: uri
+          description: Короткая ссылка
+          example: "http://localhost/py"
+
+    UrlResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Оригинальный URL
+          example: "https://www.python.org"
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Описание ошибки

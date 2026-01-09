@@ -1,0 +1,33 @@
+# Core
+Flask==3.0.2
+Flask-SQLAlchemy==3.1.1
+Flask-Migrate==4.0.5
+Flask-WTF==1.2.1
+python-dotenv==1.0.0
+SQLAlchemy==2.0.21
+Werkzeug==3.0.0
+WTForms==3.0.1
+
+# Async HTTP (for Yandex.Disk integration)
+aiohttp==3.10.5
+aiohappyeyeballs==2.4.0
+aiosignal==1.3.1
+frozenlist==1.4.1
+multidict==6.0.5
+yarl==1.9.9
+
+# Image processing
+pillow==10.4.0
+
+# Database migrations
+alembic==1.12.0
+Mako==1.3.3
+
+# Templating
+Jinja2==3.1.4
+MarkupSafe==2.1.5
+
+# Utilities
+click==8.1.7
+itsdangerous==2.2.0
+blinker==1.8.2
